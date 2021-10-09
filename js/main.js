@@ -48,6 +48,19 @@
       sceneInfo[i].scrollHeight = sceneInfo[i].heightNum * window.innerHeight;
       sceneInfo[i].objs.container.style.height = `${sceneInfo[i].scrollHeight}px`;
     }
+
+    // 현재 스크롤 위치에 맞춰 currentScene을 셋팅
+    yOffset = window.pageYOffset;
+    let totalScrollHeight = 0;
+    for (let i = 0; i < sceneInfo.length; i++) {
+      totalScrollHeight += sceneInfo[i].scrollHeight;
+      if (totalScrollHeight >= yOffset) {
+        // 전체 스크롤 높이 >= 현재 스크롤 위치
+        currentScene = i; // 현재 씬을 i로 셋팅
+        break;
+      }
+    }
+    document.body.setAttribute("id", `show-scene-${currentScene}`);
   }
 
   function scrollLoop() {
@@ -58,22 +71,22 @@
 
     if (yOffset > prevScrollHeight + sceneInfo[currentScene].scrollHeight) {
       currentScene++;
+      document.body.setAttribute("id", `show-scene-${currentScene}`);
     }
 
     if (yOffset < prevScrollHeight) {
       if (currentScene == 0) return; // 브라우저 최상단에서 스크롤시 바운스 효과로 yOffset 값이 음수가 되는 이슈를 방지(모바일)
       currentScene--;
+      document.body.setAttribute("id", `show-scene-${currentScene}`);
     }
-
-    console.log(currentScene);
   }
 
   // window size 변경시 scrollHeight 실시간 변경
-  window.addEventListener("resize", setLayout);
   window.addEventListener("scroll", () => {
     yOffset = window.pageYOffset; // pageYOffset: 수직 방향으로 HTML문서가 스크롤되는 픽셀 수 - 현재 스크롤 위치 확인 가능
     scrollLoop();
   });
-
-  setLayout();
+  // window.addEventListener('DOMContentLoaded', setLayout)
+  window.addEventListener("load", setLayout);
+  window.addEventListener("resize", setLayout);
 })();
